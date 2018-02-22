@@ -6,6 +6,7 @@ int main(int argc,char **argv){
 	ImageProcesser prc;
 	prc.reserve_vectors();
 	//while文でloop
+	ros::Rate rate(10);
 	while(ros::ok()){
 		prc.setimage();
 		prc.set_depth();

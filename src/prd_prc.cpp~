@@ -161,13 +161,45 @@
 				th_mv=0.1;
 				if(sp3d.sqr_p3d[i].line_p3d[j].y+0.23>0.1&&sp3d.sqr_p3d[i].line_p3d[j].y+0.23<=1.0//0->0.1 1211
 					&&!std::isnan(avept[i][j].x)
+//					&&std::abs(avept[i][j].x)>=th_mv /avez[i][j]
 					&&std::abs(avept[i][j].x)>=th_mv/avez[i][j]*f*dt
-					&&dsppt[i][j].x<=th_mv /avez[i][j]*f*dt*0.10
+//					&&0.03<th_mv/avez[i][j]
+//					||sp3d.sqr_p3d[i].line_p3d[j].z > 3.0
+//					||std::abs(avept[i][j].x)*sp3d.sqr_p3d[i].line_p3d[j].z/f/dt<0.2
+					&&dsppt[i][j].x<=th_mv /avez[i][j]*f*dt*0.10			//add
 					&&dspz[i][j]<=0.15//0.10
 					&&avez[i][j]<=3.0
 					&&std::abs(avept[i][j].x)*avez[i][j]/f/dt>=0.10
 					&&std::abs(avept[i][j].x)*avez[i][j]/f/dt<=2.00){//1.00){
+//					&&std::abs(avept[i][j].x)*sp3d.sqr_p3d[i].line_p3d[j].z/f/dt>=0.10
+//					&&std::abs(avept[i][j].x)*sp3d.sqr_p3d[i].line_p3d[j].z/f/dt<=1.00){
+//					&&(int)cpt[i][j].size()>2){
+//					std::cout<<"\navept["<<i<<"]["<<j<<"],z:"<<avept[i][j]<<","<<avez[i][j]<<"\n";
 
+//normal
+/*					p_mvarea[i][j]=1;
+				}
+				else{
+					p_mvarea[i][j]=0;
+				}
+
+*/
+//pattern 1
+/*
+					p_mvarea[i][j]=1;//
+				}
+				else{
+//					int m=6;
+					int m=3;
+					if(p_mvarea[i][j]!=0)
+						p_mvarea[i][j]=p_mvarea[i][j]-(double)1/m;
+				}
+*/
+//pattern 2
+
+//					double fc=50;//3~10 Hz
+//					double T_p_mvarea=1/fc;
+//					double T_p_mvarea=dt*5;
 					double T_p_mvarea;
 					if(!std::isnan(dt)&&dt!=0)
 						T_p_mvarea=dt/3;//2;
@@ -175,9 +207,12 @@
 					std::cout<<"p_mvarea["<<i<<"]["<<j<<"]:"<<p_mvarea[i][j]<<"\n";
 				}
 				else{
+//					double fc=50;//3~10 Hz
+//					double T_p_mvarea=1/fc;
+//					double T_p_mvarea=dt*5;
 					double T_p_mvarea;
 					if(!std::isnan(dt)&&dt!=0)
-						T_p_mvarea=dt/3;
+						T_p_mvarea=dt/3;///2;
 					p_mvarea[i][j]=(T_p_mvarea*p_pmvarea[i][j]+dt*0)/(T_p_mvarea+dt);					
 		}
 
@@ -193,17 +228,38 @@
 			for(int j=0;j<cnw;j++){
 				if(sp3d.sqr_p3d[i].line_p3d[j].y+0.23>0&&sp3d.sqr_p3d[i].line_p3d[j].y+0.23<=1.0){
 					all_count++;
+//					if(p_mvarea[i][j]!=0)
 					if(p_mvarea[i][j]>=1/sqrt(2))
+//					if(p_mvarea[i][j]>=0.30)
 							mvarea_count++;
 				}
 			}
 		}
+/*
+		double count_rate=0.3;
+//		std::cout<<"mvarea_count:"<<mvarea_count<<":\n";	
+		if(mvarea_count>all_count*count_rate){
+			for(int i=0;i<cnh;i++){
+				for(int j=0;j<cnw;j++){
+					prd_obj[i][j]=0;
+					pp_mvarea[i][j]=0;
+				}
+			}
+
+			return is_mvarea;
+		}
+	  */
 	}
 	
 	bool ImageProcesser::synthesis_mvarea(int& i,int& j){
+		//				if(p_mvarea[i][j]!=0){
+		//				if(p_mvarea[i][j]>=1/sqrt(2)){
+//		std::cout<<"i,j:"<<i<<","<<j<<"\n";
 		bool is_p_mvarea=false;
 		if(p_mvarea[i][j]>=1/sqrt(2)){
+//		if(p_mvarea[i][j]>=0.30){
 			is_p_mvarea=true;
+		//					std::cout<<"p_mvarea["<<i<<"]["<<j<<"]:"<<p_mvarea[i][j]<<"\n";
 			cv::Point2i temp;
 			temp.x=j;
 			temp.y=i;
@@ -211,6 +267,7 @@
 			area_begin0=temp;
 			area_end0=temp;
 			double temp_ave_opt=0;
+		//					int max_process_count=3;
 			pp_mvarea[mv_area[0].y][mv_area[0].x]=1;
 			for(int k=0;k<mv_area.size();k++){
 				if(pp_mvarea[mv_area[k].y][mv_area[k].x]!=0){
@@ -250,7 +307,17 @@
 					}
 				}
 			}
+		//
+//			std::cout<<"mv_area:"<<mv_area<<"\n";
+//			std::cout<<"area_begin:"<<area_begin0<<"\n";
+//			std::cout<<"area_end:"<<area_end0<<"\n";
+		//
 
+		//					std::cout<<"mv_area.size():"<<mv_area.size()<<"\n";
+		//					std::cout<<"area_begin(x,y):end(x,y)("<<area_begin.x<<","<<area_begin.y<<")\n"
+		//							<<"end("<<area_end.x<<","<<area_end.y<<"\n";
+
+		//					double obj_min_z=5;//img_prc_cls
 			obj_min_z=5;//
 			for(int h=area_begin0.y;h<area_end0.y+1;h++){
 				for(int w=area_begin0.x;w<area_end0.x+1;w++){
@@ -258,8 +325,10 @@
 						obj_min_z=avez[h][w];
 				}			
 			}
+		//					double obj_size=(area_end0.x+1-area_begin0.x)*(area_end0.y+1-area_begin0.y)*(width/cnw)*(height/cnh)*(obj_min_z*obj_min_z)/(f*f);//img_prc_cls
 			obj_size=(area_end0.x+1-area_begin0.x)*(area_end0.y+1-area_begin0.y)*(width/cnw)*(height/cnh)*(obj_min_z*obj_min_z)/(f*f);
 
+			//int sum_cpt_num=0;//img_prc_cls
 			sum_cpt_num=0;
 			for(int h=area_begin0.y;h<area_end0.y+1;h++){
 				for(int w=area_begin0.x;w<area_end0.x+1;w++){
@@ -271,9 +340,14 @@
 	}
 
 	bool ImageProcesser::dtct_mvarea(void){
+		//init value is false
+//		std::vector<bool> is_mv_pts;
 		bool is_mvarea=false;
 		culc_p_mvarea();
 
+		//移動物体領域合成用
+		//cv::Point2i area_begin0;//img_prc_cls
+		//cv::Point2i area_end0;//img_prc_cls
 
 		for(int j=0;j<cnw;j++){
 			for(int i=0;i<cnh;i++){
@@ -287,12 +361,18 @@
 							opt_size++;
 						}
 					}
+//					ave_opt=ave_opt/(int)opt.size();
 					ave_opt=ave_opt/opt_size;
 					
 					double obj_size=(area_end0.x+1-area_begin0.x)*(area_end0.y+1-area_begin0.y)*(width/cnw)*(height/cnh)*(obj_min_z*obj_min_z)/(f*f);
 
+	//				std::cout<<"mv_area.size():"<<mv_area.size()<<"\n";
+	//				std::cout<<"sum_cpt_num:"<<sum_cpt_num<<"\n";
 
-					if(obj_size>0.04&&sum_cpt_num>1){
+
+//					if(obj_size>0.09&&sum_cpt_num>1){//2){
+					if(obj_size>0.04&&sum_cpt_num>1){//2){
+	//					if(sum_cpt_num>2){//&&sum_cpt_num<10){
 						is_mvarea=true;
 						for(int h=area_begin0.y;h<area_end0.y+1;h++){
 							for(int w=area_begin0.x;w<area_end0.x+1;w++){
@@ -325,6 +405,14 @@
 		
 		}
 
+/*		for(int i=0;i<cnh;i++){
+			for(int j=0;j<cnw;j++){
+				prd_obj[i][j]=0;
+				pp_mvarea[i][j]=0;
+			}
+		}
+*/
+//		std::cout<<"is_mvarea:"<<is_mvarea<<"\n";
 		return is_mvarea;
 	}
 
@@ -333,6 +421,9 @@
 		bool is_mvarea=false;
 		culc_p_mvarea();
 
+		//移動物体領域合成用
+//		cv::Point2i area_begin0;
+//		cv::Point2i area_end0;
 
 		for(int j=0;j<cnw;j++){
 			for(int i=0;i<cnh;i++){
@@ -345,12 +436,20 @@
 							opt_size++;
 						}
 					}
+//					ave_opt=ave_opt/(int)opt.size();
 					ave_opt=ave_opt/opt_size;
+	//					std::cout<<"mv_area.size():"<<mv_area.size()<<"\n";
+	//					std::cout<<"area_begin(x,y):end(x,y)("<<area_begin.x<<","<<area_begin.y<<")\n"
+	//							<<"end("<<area_end.x<<","<<area_end.y<<"\n";
+
+	//					double obj_min_z=5;//
 
 					double obj_size=(area_end0.x+1-area_begin0.x)*(area_end0.y+1-area_begin0.y)*(width/cnw)*(height/cnh)*(obj_min_z*obj_min_z)/(f*f);
 
 
-					if(obj_size>0.04&&sum_cpt_num>1){
+//					if(obj_size>0.09&&sum_cpt_num>1){//2){
+					if(obj_size>0.04&&sum_cpt_num>1){//2){
+	//					if(sum_cpt_num>1){
 						area_begin.push_back(area_begin0);
 						area_end.push_back(area_end0);
 						area_opt.push_back(ave_opt);
@@ -386,6 +485,13 @@
 			}
 		
 		}
+/*		for(int i=0;i<cnh;i++){
+			for(int j=0;j<cnw;j++){
+				prd_obj[i][j]=0;
+				pp_mvarea[i][j]=0;
+			}
+		}
+*/
 		return is_mvarea;
 	}
 
@@ -393,6 +499,12 @@
 	void ImageProcesser::prd_mvarea(void){
 
 		//衝突物体を予測
+//avept[i][j].x
+/*		double obj_pstn;
+		int prd_obj[cnh][cnw];
+		int prd_line[cnw];
+		//initialize prd_obj
+*/
 
 		if((int)area_begin.size()<=0)
 			return ;
@@ -405,16 +517,34 @@
 			}
 		}
 		for(int i=0;i<area_begin.size();i++){
+//			obj_mv_dx=area_opt[i]*area_z[i]/dr;//
 			obj_mv_dx=area_opt[i]/dt*area_z[i]/0.2;//
 			for(int h=area_begin[i].y;h<area_end[i].y+1;h++){
 				for(int w=area_begin[i].x;w<area_end[i].x+1;w++){
 					pp_mvarea[h][w]=1;
 					obj_pstn=((double)w+0.5)*width/cnw+obj_mv_dx;
 					int prd_j=(int)(obj_pstn*cnw/width);
+///					std::cout<<"obj_pstn(prev,aftr):("<<w<<","<<prd_j<<")\n";
+//							std::cout<<"prd_j:"<<prd_j<<"\n";
 					//移動するエリアは考慮しない
 					if(0<=prd_j&&prd_j<cnw){
 						prd_obj[h][prd_j]=1;
-/
+/*
+						//移動後z
+						if(!std::isnan(avez[h][w])){
+							if(sp3d.sqr_p3d[h].line_p3d[prd_j].z >avez[h][w]||sp3d.sqr_p3d[h].line_p3d[prd_j].z >sp3d.sqr_p3d[h].line_p3d[w].z){
+								if(avez[h][w]<sp3d.sqr_p3d[h].line_p3d[w].z)
+									sp3d.sqr_p3d[h].line_p3d[prd_j].z =avez[h][w];
+								else
+									sp3d.sqr_p3d[h].line_p3d[prd_j].z =sp3d.sqr_p3d[h].line_p3d[w].z;											
+							}
+						}
+						else{
+							if(sp3d.sqr_p3d[h].line_p3d[prd_j].z >sp3d.sqr_p3d[h].line_p3d[w].z){
+								sp3d.sqr_p3d[h].line_p3d[prd_j].z =sp3d.sqr_p3d[h].line_p3d[w].z;
+							}
+						}
+*/
 						sp3d.sqr_p3d[h].line_p3d[prd_j].z =0.5;//1229
 
 					}
@@ -447,6 +577,7 @@
 			line_z[j]=0;
 		int z_count=0;
 		for(int j=0;j<cnw;j++){
+//			double min_z;
 			double max_z;
 			int nan_count=0;
 			int count=0;
@@ -454,7 +585,8 @@
 			int prd_obj_count=0;
 			int max_flag=0;
 			for(int i=0;i<cnh;i++){
-
+//				if(sp3d.sqr_p3d[i].line_p3d[j].z==0)
+//					std::cout<<"sp3d.sqr_p3d["<<i<<"].line_p3d["<<j<<"].z:"<<sp3d.sqr_p3d[i].line_p3d[j].z<<"\n";
 				if(!std::isnan(sp3d.sqr_p3d[i].line_p3d[j].y)&&sp3d.sqr_p3d[i].line_p3d[j].z!=0){
 					if(sp3d.sqr_p3d[i].line_p3d[j].y+0.23>0&&sp3d.sqr_p3d[i].line_p3d[j].y+0.23<1.0){
 						if(count==0){
@@ -489,16 +621,25 @@
 							if(prd_obj[i][j]!=0)
 								prd_obj_count++;
 						}
+//						if(p_mvarea[i][j]==1&&prd_obj[i][j]==0)
+//							max_flag=1;
 					}
 				}
 				else
 					nan_count++;
 				all_count++;
 			}
-			if(all_count==0||min_z<0.5)
+//			if(all_count!=0)
+//				std::cout<<"line["<<j<<"]:(float)nan_count/all_count:"<<(float)nan_count/all_count<<"\n";
+//				std::cout<<"line["<<j<<"]nan_count:"<<nan_count<<"\n";
+			if(all_count==0||min_z<0.5)//||min_z>6)//add
 				min_z=0.5;
+//			else if((float)nan_count/all_count>=0.70)
 			else if((float)nan_count/all_count>=0.50&&(float)prd_obj_count/nan_count<0.80)
 				min_z=0.5;
+/*			else if(min_z!=0.5&&min_z==max_z)
+				min_z=0.5;
+*/
 			if(max_flag==0)
 				line_z[j]=min_z;
 			else
@@ -525,7 +666,13 @@
 		int dif_lens=(int)dif_lens_d+(int)((dif_lens_d-(int)dif_lens_d)*2);//4 out ,5 in
 		double w_pix=f*rw/min_line_z;
 		int space_minsize=(int)(w_pix/(width/cnw))+1;
-		int space_temp=0;
+//		std::cout<<"dif_lens(i,d):("<<dif_lens<<","<<dif_lens_d<<")\n";
+		std::cout<<"space_minsize:"<<space_minsize<<"\n";
+/*
+		std::vector<int> space_begin;
+		std::vector<int> space_end;
+		std::vector<int> space_size;
+*/		int space_temp=0;
 ////set vel and max_vel_dif
 		double min_space_z=line_z[cnw/2+(-space_minsize/2)-dif_lens];
 		for(int j=-space_minsize/2-dif_lens;j<=space_minsize/2-dif_lens;j++){
@@ -539,11 +686,14 @@
 			min_space_z=1.0;
 //		vel=min_space_z*50+50;
 		target_vel=min_space_z*50+50;
+//		vel=min_space_z*50+20;
+
 		target_vel=200;//in prac
 		
 
 //VFH
 		for(int j=0;j<cnw;j++){
+//			if(line_z[j]>1.0&&!std::isinf(line_z[j])&&!std::isnan(line_z[j]))///
 			if(line_z[j]>0.7&&!std::isinf(line_z[j])&&!std::isnan(line_z[j]))///
 				space_temp++;
 			else{
@@ -565,8 +715,14 @@
 
 		double z_max=5;
 		double z_aveline=0;//sum->ave
+//		double z_target=0.5;
 		int target_num=cnw/2;
 		z_target=0.5;
+
+//		for(int i=0;i<cnw;i++)
+//			std::cout<<"line_z["<<i<<"]:"<<line_z[i]<<"\n";
+//		for(int i=0;i<space_size.size();i++)
+//			std::cout<<"space_begin[i],space_size[i]:"<<space_begin[i]<<","<<space_size[i]<<"\n";
 		for(int i=0;i<space_size.size();i++){
 			//space num
 			for(int j=0;j<space_size[i]-(space_minsize-1);j++){
@@ -575,6 +731,10 @@
 					if(min_space_z>line_z[space_begin[i]+j+k])
 						min_space_z=line_z[space_begin[i]+j+k];
 				z_aveline=min_space_z;
+/*				for(int k=0;k<space_minsize;k++)
+					z_aveline+=line_z[space_begin[i]+j+k];
+				z_aveline=z_aveline/space_minsize;
+*/
 				if(z_target<z_aveline){
 					z_target=z_aveline;
 					target_num=space_begin[i]+j+space_minsize/2-dif_lens;
@@ -603,6 +763,7 @@
 				else
 					break;
 			}
+//		std::cout<<"right_space:"<<right_space<<"\n";
 		//スペースがないときは左回転
 			if(left_space>=right_space)
 				target_num=0;
@@ -614,8 +775,17 @@
 		std::cout<<"target_num:"<<target_num<<"\n";
 		std::cout<<"z_target:"<<z_target<<"\n";
 		target_point.x=(double)width/cnw*(double)target_num;//+width/cnw/2;
+//		target_point.x=(pT*ptarget_point.x+dt*target_point.x)/(pT+dt);
 		target_point.y=height/2;
-
+/*		for(int i=0;i<cnh;i++){
+			for(int j=0;j<cnw;j++){
+				p_pmvarea[i][j]=pp_mvarea[i][j];
+				p_avez[i][j]=avez[i][j];
+//				p_avez[i][j]=avept[i][j].x*sp3d.sqr_p3d[i].line_p3d[j].z;
+//				pprd_obj[i][j]=prd_obj[i][j];
+			}
+		}
+*/
 		ptarget_point=target_point;
 		target_point_msg.x=target_point.x;
 		target_point_msg.y=target_point.y;
@@ -631,6 +801,7 @@
 			double sp_k=4;
 			double sp_k2=2;
 			subtarget_z=z_target/sp_k;
+//			subtarget_z=min_line_z/sp_k;
 			subtarget_x=(target_point.x-width/2)*z_target/f/sp_k;
 			while(ros::ok()){
 				if(subtarget_z>=1.0){//0.3){
@@ -640,6 +811,7 @@
 				else
 					break;
 			}
+//			subtarget_x=-(target_point.x-width/2)*z_target/f/sp_k;
 			target_length=sqrt(subtarget_x*subtarget_x+subtarget_z*subtarget_z);
 			target_sheta=atan(subtarget_x/subtarget_z);
 			std::cout<<"subtarget_z,target_sheta:"<<subtarget_z<<","<<target_sheta<<"\n";//debug

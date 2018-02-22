@@ -69,8 +69,6 @@ void ImageProcesser::imageProcess()
 
 		jnpts.push_back(ppt) ;
 	}
-//	std::cout<<"vr,vl:"<<vr<<","<<vl<<"\n";
-//	std::cout<<"dv,dw:"<<dz-(vr+vl)/2*dt<<","<<dyaw-(-vr+vl)/d*dt<<"\n";
 	obst_avoid::dvw dvw_msg;	
 	dvw_msg.v=w_v;
 	dvw_msg.w=w_w;
@@ -80,7 +78,6 @@ void ImageProcesser::imageProcess()
 
 	npts.insert(npts.end(),jnpts.begin(),jnpts.end());
 	//---オプティカルフローを得る-----------------------------
-//		cv::calcOpticalFlowPyrLK(PreLgray,Lgray, pts, npts, sts, ers, cv::Size(15,15), 3,cvTermCriteria (CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 30, 0.05), 1);
 		cv::calcOpticalFlowPyrLK(PreLgray,Lgray, pts, npts, sts, ers, cv::Size(13,13), 3,cvTermCriteria (CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 30, 0.05), 1);
 
 		float pnz;
